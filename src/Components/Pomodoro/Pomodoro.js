@@ -1,47 +1,125 @@
 import React, { Component } from 'react';
 import 'Styles/normalize.css'
 import 'Styles/Pomodoro.css';
+import { setInterval } from 'core-js';
 
 class Pomodoro extends Component {
 	state = {
 		breakMinutes: 5,
-		workMinutes: 25,
-		timer: 25,
-		timerStatus: 'Start'
+		workMinutes: 1,
+		timerMinutes: 1,
+		timerSeconds: 0,
+		timerRunning: false,
+		whatTimer: 'work',
+		interval: ''
 	}
+	setTimer(event, operation, whatMinutes){
+		const currTMinutes = this.state[whatMinutes]
+		const newTMinutes = operation === '+' ? this.state[whatMinutes] + 1 : this.state[whatMinutes] - 1
+		console.log(`currTminutes: ${currTMinutes} newTMinutes: ${newTMinutes}`)
+		// if()
+		// if (this.state.timerRunning && this.state[whatMinutes] > 0) {
+		// 	this.setState({
+		// 		[whatMinutes]: newTMinutes
+		// 	})
+		// }
+		// if (!this.state.timerRunning && this.state[whatMinutes] > 1){
+		// 	this.setState({
+		// 		timerMinutes: newTMinutes,
+		// 		[whatMinutes]: newTMinutes
+		// 	})
+		// }
+	}
+	
+
+	componentDidMount(){
+		const interval = setInterval(()=> {
+			this.timer()
+		}, 1000)
+		this.setState({interval: interval})
+	}
+	componentWillUnmount(){
+		clearInterval(this.state.interval)
+	}
+	timer(){
+		if (this.state.timerRunning) {
+			if(this.state.timerSeconds === 0){
+				this.setState({
+					timerSeconds: 59,
+					timerMinutes: this.state.timerMinutes - 1
+				})
+			}
+			if (this.state.timerMinutes === 0 && this.state.timerSeconds === 1) {
+				const whatTimer = this.state.whatTimer === 'work' ? 'break' : 'work'
+				const nextMinutes = this.state[`${whatTimer}Minutes`]
+				this.setState({
+					whatTimer: whatTimer,
+					timerSeconds: 0,
+					timerMinutes: nextMinutes
+				})
+			}
+			else{
+				const seconds = this.state.timerSeconds - 1
+				this.setState({timerSeconds: seconds})
+			}
+		}
+	}
+	togglePlay(){
+		this.setState({
+			timerRunning: !this.state.timerRunning,
+			timerMinutes: this.state.workMinutes,
+			timerSeconds: 0,
+		})
+	}
+
 	render() {
+		this.setTimer = this.setTimer.bind(this)
+		this.togglePlay = this.togglePlay.bind(this)
 		return (
 			<div id="Pomodoro" className="Pomodoro">
-				<h1>Pomodoro clock</h1>
+				<h1>Pomodoro'Clock</h1>
 				<div className="TimeSetter-wrapper">
-					<TimeSetter timeKind="Break" minutes={this.state.breakMinutes} />
-					<TimeSetter timeKind="Work" minutes={this.state.workMinutes}/>
+					<TimeSetter text="Work" whatMinutes="workMinutes" minutes={this.state.workMinutes} setTimer={this.setTimer} />
+					<TimeSetter text="Break" whatMinutes="breakMinutes" minutes={this.state.breakMinutes} setTimer={this.setTimer} />
 				</div>
-				<TimerDisplay timer={this.state.timer} timerStatus={this.state.timerStatus} />
+				<TimerDisplay
+					togglePlay={this.togglePlay}
+					timerRunning={this.state.timerRunning}
+					timerMinutes={this.state.timerMinutes}
+					timerSeconds={this.state.timerSeconds} />
 			</div>
 		);
 	}
 }
 
 const TimeSetter = (props) => {
+	const whatMinutes = props.whatMinutes
+	const minutes = props.minutes
 	return (
 		<div className="TimeSetter">
-			<h3>{props.timeKind}</h3>
+			<h3>{props.text}</h3>
 			<div className="buttonNDisplay">
-				<button>-</button>
-				<span>{props.minutes}</span>
-				<button>+</button>
+				<button onClick={(e) => props.setTimer(e, '-', whatMinutes)}>-</button>
+				<span>{minutes}</span>
+				<button onClick={(e)=> props.setTimer(e,'+',whatMinutes)}>+</button>
 			</div>
 		</div>
 	)
 }
 
 const TimerDisplay = (props) => {
+	const TimerText = props.timerRunning  ? 'Reset' : 'Start'
+	const minutes = props.timerMinutes < 10 ? `0${props.timerMinutes}` : props.timerMinutes
+	const seconds = props.timerSeconds < 10 ? `0${props.timerSeconds}` : props.timerSeconds
 	return(
 		<div className="TimerDisplay">
-			<div className="circle">
-				<p className="timer">{props.timer}</p>
-				<p className="timer-status">{props.timerStatus}</p>
+			<div className="circle" onClick={props.togglePlay} >
+				<p className="timer">
+					<span className="timerMinutes">{minutes}</span>
+					:
+					<span className="timerSeconds">{seconds}</span>
+				</p>
+				<p className="timer-status">{TimerText}</p>
 			</div>
 		</div>
 	)
