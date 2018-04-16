@@ -18,16 +18,16 @@ h1,h2,h3,h4,h5,h6 {
 }
 
 h1 {
-	margin-bottom: 15px;
+	margin-bottom: 30px;
 }
 
 
 .Pomodoro {
 	width: 300px;
-	height: 300px;
 	text-align: center;
 	display: flex;
 	flex-direction: column;
+	padding: 10px 0;
 }
 
 .TimeSetter-wrapper {
@@ -38,6 +38,7 @@ h1 {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
+	margin-bottom: 30px;
 }
 .TimeSetter h3 {
 	text-transform: uppercase;
@@ -82,6 +83,17 @@ h1 {
 	justify-content: center;
 	align-items: center;
 	cursor: pointer;
+	position: relative;
+	overflow: hidden;
+}
+.TimerDisplay .circle .fill{
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: -1;
+	/* border-radius: 50%; */
+	background-color: rgba(89, 107, 245, 0.3);
 }
 .TimerDisplay .circle .timer{
 	font-weight: 600;
@@ -94,8 +106,23 @@ h1 {
 }
 .TimerDisplay .circle p{
 	margin: 0;
+	display: flex;
+	justify-content: center;
+}
+.TimerDisplay .circle p .timerMinutes{
+	text-align: right;
+}
+.TimerDisplay .circle p .timerSeconds{
+	text-align: left;
+	
+}
+.TimerDisplay .circle p .dots{
+	min-width: 10px;
 }
 .TimerDisplay .circle p span{
-	width: 50%; /* ???(*/
+	min-width: 80px;
+}
+.TimerDisplay .circle .session{
+	margin: 20px 0;
 }
 

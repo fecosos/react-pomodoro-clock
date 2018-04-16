@@ -1,34 +1,25 @@
-import React, { Component } from 'react';
+import React from 'react';
 import 'Styles/normalize.css'
 import 'Styles/Pomodoro.css';
 import { setInterval } from 'core-js';
 
-class Pomodoro extends Component {
+class Pomodoro extends React.Component {
 	state = {
 		breakMinutes: 5,
-		workMinutes: 1,
-		timerMinutes: 1,
+		workMinutes: 25,
+		timerMinutes: 25,
 		timerSeconds: 0,
 		timerRunning: false,
 		whatTimer: 'work',
 		interval: ''
 	}
 	setTimer(event, operation, whatMinutes){
-		const currTMinutes = this.state[whatMinutes]
 		const newTMinutes = operation === '+' ? this.state[whatMinutes] + 1 : this.state[whatMinutes] - 1
-		console.log(`currTminutes: ${currTMinutes} newTMinutes: ${newTMinutes}`)
-		// if()
-		// if (this.state.timerRunning && this.state[whatMinutes] > 0) {
-		// 	this.setState({
-		// 		[whatMinutes]: newTMinutes
-		// 	})
-		// }
-		// if (!this.state.timerRunning && this.state[whatMinutes] > 1){
-		// 	this.setState({
-		// 		timerMinutes: newTMinutes,
-		// 		[whatMinutes]: newTMinutes
-		// 	})
-		// }
+		if(newTMinutes > 0) {
+			this.setState({
+				[whatMinutes]: newTMinutes
+			})
+		}
 	}
 	
 
@@ -52,6 +43,7 @@ class Pomodoro extends Component {
 			if (this.state.timerMinutes === 0 && this.state.timerSeconds === 1) {
 				const whatTimer = this.state.whatTimer === 'work' ? 'break' : 'work'
 				const nextMinutes = this.state[`${whatTimer}Minutes`]
+				console.log(`Starting ${whatTimer}`)
 				this.setState({
 					whatTimer: whatTimer,
 					timerSeconds: 0,
@@ -75,6 +67,15 @@ class Pomodoro extends Component {
 	render() {
 		this.setTimer = this.setTimer.bind(this)
 		this.togglePlay = this.togglePlay.bind(this)
+		let progress
+		if(this.state.timerRunning){
+			const secondsLeft = (this.state.timerMinutes * 60) + (this.state.timerSeconds)
+			const secondsTotal = this.state[this.state.whatTimer === 'work' ? 'workMinutes' : 'breakMinutes'] * 60
+			progress = Math.ceil((secondsLeft * 100 / secondsTotal))
+		}
+		else{
+			progress = 100
+		}
 		return (
 			<div id="Pomodoro" className="Pomodoro">
 				<h1>Pomodoro'Clock</h1>
@@ -86,7 +87,10 @@ class Pomodoro extends Component {
 					togglePlay={this.togglePlay}
 					timerRunning={this.state.timerRunning}
 					timerMinutes={this.state.timerMinutes}
-					timerSeconds={this.state.timerSeconds} />
+					timerSeconds={this.state.timerSeconds}
+					currSession={this.state.whatTimer}
+					progress={progress}
+				/>
 			</div>
 		);
 	}
@@ -111,15 +115,18 @@ const TimerDisplay = (props) => {
 	const TimerText = props.timerRunning  ? 'Reset' : 'Start'
 	const minutes = props.timerMinutes < 10 ? `0${props.timerMinutes}` : props.timerMinutes
 	const seconds = props.timerSeconds < 10 ? `0${props.timerSeconds}` : props.timerSeconds
+	const currSession = props.currSession === 'work' ? 'Work' : 'Break'
 	return(
 		<div className="TimerDisplay">
 			<div className="circle" onClick={props.togglePlay} >
+				<p className="session">{currSession} session</p>
 				<p className="timer">
 					<span className="timerMinutes">{minutes}</span>
-					:
+					<span className="dots">:</span>
 					<span className="timerSeconds">{seconds}</span>
 				</p>
 				<p className="timer-status">{TimerText}</p>
+				<div className="fill" style={{top: `${props.progress}%`}} ></div>
 			</div>
 		</div>
 	)
